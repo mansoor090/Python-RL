@@ -18,6 +18,7 @@ class MyVector3:
 class RlResult:
     reward: float
     finished: bool
+    truncate: bool
     obs: MyVector3
 
 def run(args: argparse.Namespace) -> None:
@@ -34,15 +35,15 @@ def run(args: argparse.Namespace) -> None:
 
     for episode in range(maxEpisodes):
         obs, info = my_env.reset()
-        done = false
+        done = False
+        truncate = False
         total_reward = 0
-        while not done:
+        while not done and not truncate:
             action, info = ppo.predict(obs)
-
             obs, reward, done, truncate, info = my_env.step(action)
             total_reward += reward
 
-        print(f"Episode 1: {episode + 1}, finished with total reward: {total_reward}")
+        print(f"Episode: {episode + 1}, finished with total reward: {total_reward}")
 
     my_env.close()
 
@@ -55,4 +56,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
     run(args)
 
-    ### COmmenting: Muneeb is newbie

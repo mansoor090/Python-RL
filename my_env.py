@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-
-from numpy import dtype
 from peaceful_pie.unity_comms import UnityComms
 import argparse
 import gymnasium as gym
@@ -21,16 +19,16 @@ class MyVector3:
 class RlResult:
     reward: float
     finished: bool
+    truncate: bool
     obs: MyVector3
-
-
 
 
 class MyEnv(gym.Env):
     def __init__(self, unity_comms: UnityComms):
 
         self.unity_commes = unity_comms
-        self.action_space = spaces.Discrete(4)
+        #self.action_space = spaces.Discrete(4)
+        self.action_space = spaces(6)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
 
 
@@ -40,15 +38,22 @@ class MyEnv(gym.Env):
             "north","south",
             "east","west"][action]
 
+        # action_str = [
+        #     "Drive","Reverse",
+        #     "DriveLeft", "DriveRight",
+        #     "ReverseLeft","ReverseRight"][action]
+
         rlResult: RlResult = self.unity_commes.Step(action=action_str, ResultClass = RlResult)
         info = {"finished": rlResult.finished}
-        truncated = False
-        return self._obs_vec3_to_np(rlResult.obs), rlResult.reward, rlResult.finished, truncated, info
+
+        return self._obs_vec3_to_np(rlResult.obs), rlResult.reward, rlResult.finished, rlResult.truncate, info
 
 
     def reset(self, seed=None) -> Tuple[NDArray[np.float32], dict[str, Any]]:
         obs_vec3: MyVector3 = self.unity_commes.Reset(ResultClass = MyVector3)
+
         info = {"finished": False}
+
         return self._obs_vec3_to_np(obs_vec3), {}
 
     def _obs_vec3_to_np(self, vec3: MyVector3) -> NDArray[np.float32]:

@@ -27,8 +27,8 @@ class MyEnv(gym.Env):
     def __init__(self, unity_comms: UnityComms):
 
         self.unity_commes = unity_comms
-        #self.action_space = spaces.Discrete(4)
-        self.action_space = spaces(6)
+        self.action_space = spaces.Discrete(4)
+        # self.action_space = spaces(6)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
 
 

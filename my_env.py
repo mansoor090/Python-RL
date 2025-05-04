@@ -7,58 +7,81 @@ from numpy.typing import NDArray
 from typing import Tuple, Any
 from gymnasium import spaces
 from stable_baselines3.common.env_checker import check_env
+import json
+
+
 
 
 @dataclass
-class MyVector3:
-    x: float
-    y: float
-    z: float
+class Observations:
+    #dead: bool
+    myPosition: list[int]         # [x, y, z]
+    targetPos: list[int]   # [dx, dy, dz]
+    walkablePos: list[list[int]]  # list of [hx, hy, hz]
+    hurdlesPositions: list[list[int]]  # list of [hx, hy, hz]
 
 @dataclass
 class RlResult:
     reward: float
     finished: bool
     truncate: bool
-    obs: MyVector3
+    obs: Observations
+
 
 
 class MyEnv(gym.Env):
+    max_hurdles : int = 14
+
     def __init__(self, unity_comms: UnityComms):
+
+        walkCount : int = 0
+        hurdleCount: int = 0
+
+        walkCount = unity_comms.GetWalkableCount()
+        hurdleCount = unity_comms.GetHurdleCount()
+
 
         self.unity_commes = unity_comms
         self.action_space = spaces.Discrete(4)
         # self.action_space = spaces(6)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
+        self.observation_space = spaces.Dict({
+           # "dead": spaces.Discrete(2),
+            "myPosition": spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
+            "targetPos": spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
+            "walkablePos": spaces.Box(low=-np.inf, high=np.inf, shape=(walkCount, 3), dtype=np.float32),
+            "hurdlesPositions": spaces.Box(low=-np.inf, high=np.inf, shape=(hurdleCount, 3), dtype=np.float32)
+        })
+
+    def step(self, action: NDArray[np.uint8]) -> Tuple[dict[str, NDArray[np.float32] | int], float, bool, bool, dict[str, Any]]:
+
+        action_str = ["north","south","east","west"][action]
+
+        rlResult: RlResult = self.unity_commes.Step(action=action_str, ResultClass=RlResult)
+        info = {"finished": rlResult.finished}  # or any other info you want
+
+        obs_dict = {
+            #"dead": int(rlResult.obs.dead),
+            "myPosition": np.array(rlResult.obs.myPosition, dtype=np.float32),
+            "targetPos": np.array(rlResult.obs.targetPos, dtype=np.float32),
+            "walkablePos": np.array(rlResult.obs.walkablePos, dtype=np.float32),
+            "hurdlesPositions": np.array(rlResult.obs.hurdlesPositions, dtype=np.float32)
+        }
+        save_obs_to_file(obs_dict, rlResult.reward)
+        return obs_dict, rlResult.reward, rlResult.finished, rlResult.truncate, info
 
 
-    def step(self, action: NDArray[np.uint8]) -> Tuple[NDArray[np.float32], float, bool, bool, dict[str, Any]]:
+    def reset(self, seed=None, **kwargs) -> Tuple[dict[str, NDArray[np.float32] | int], dict[str, Any]]:
+        obs_vec3: Observations = self.unity_commes.Reset(ResultClass = Observations)
 
-        action_str = [
-            "north","south",
-            "east","west"][action]
+        obs_dict = {
+            #"dead": int(rlResult.obs.dead),
+            "myPosition": np.array(obs_vec3.myPosition, dtype=np.float32),
+            "targetPos": np.array(obs_vec3.targetPos, dtype=np.float32),
+            "walkablePos": np.array(obs_vec3.walkablePos, dtype=np.float32),
+            "hurdlesPositions": np.array(obs_vec3.hurdlesPositions, dtype=np.float32)
+        }
 
-        # action_str = [
-        #     "Drive","Reverse",
-        #     "DriveLeft", "DriveRight",
-        #     "ReverseLeft","ReverseRight"][action]
-
-        rlResult: RlResult = self.unity_commes.Step(action=action_str, ResultClass = RlResult)
-        info = {"finished": rlResult.finished}
-
-        return self._obs_vec3_to_np(rlResult.obs), rlResult.reward, rlResult.finished, rlResult.truncate, info
-
-
-    def reset(self, seed=None) -> Tuple[NDArray[np.float32], dict[str, Any]]:
-        obs_vec3: MyVector3 = self.unity_commes.Reset(ResultClass = MyVector3)
-
-        info = {"finished": False}
-
-        return self._obs_vec3_to_np(obs_vec3), {}
-
-    def _obs_vec3_to_np(self, vec3: MyVector3) -> NDArray[np.float32]:
-        return np.array([vec3.x, vec3.y, vec3.z], dtype=np.float32)
-
+        return obs_dict, {}
 
 
 
@@ -66,6 +89,14 @@ def run(args: argparse.Namespace) -> None:
     unity_comms = UnityComms(port=args.port)
     my_env = MyEnv(unity_comms=unity_comms)
     check_env(my_env)
+
+def save_obs_to_file(obs, reward):
+    data = {
+        "observation": {k: v.tolist() for k, v in obs.items()},
+        "reward": reward
+    }
+    with open("latest_obs.json", "w") as f:
+        json.dump(data, f)
 
 
 if __name__ == '__main__':

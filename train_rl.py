@@ -10,22 +10,21 @@ def run(args: argparse.Namespace) -> None:
     unity_comms = UnityComms(port=args.port)
     model_name = args.model
     my_env = MyEnv(unity_comms=unity_comms)
-    ppo = PPO.load("./tune_models/PPO_run_1")
-    # ppo = PPO(
-    #     "MultiInputPolicy",
-    #     env=my_env,
-    #     verbose=1,
-    #     tensorboard_log='./tensorboard/',
-    #     learning_rate=3e-4,
-    #     n_steps=4096,
-    #     batch_size=512,
-    #     gamma=0.99,
-    #     gae_lambda=0.95,
-    #     clip_range=0.2,
-    #     ent_coef=0.01,
-    #     vf_coef=0.5,
-    #     max_grad_norm=0.5,
-    # )
+    ppo = PPO(
+        "MultiInputPolicy",
+        env=my_env,
+        verbose=1,
+        tensorboard_log='./tensorboard/',
+        learning_rate=3e-4,
+        n_steps=4096,
+        batch_size=512,
+        gamma=0.99,
+        gae_lambda=0.95,
+        clip_range=0.2,
+        ent_coef=0.01,
+        vf_coef=0.5,
+        max_grad_norm=0.5,
+    )
 
     ppo.learn(total_timesteps=100000)
 

@@ -17,9 +17,10 @@ class Observations:
     #dead: bool
     myPosition: list[int]         # [x, y, z]
     targetPos: list[int]   # [dx, dy, dz]
-    walkablePos: list[list[int]]  # list of [hx, hy, hz]
-    hurdlesPositions: list[list[int]]  # list of [hx, hy, hz]
-
+    canMove: list[bool]  # list of bools indicating if the agent can move to that position
+    # walkablePos: list[list[int]]  # list of [hx, hy, hz]
+    # hurdlesPositions: list[list[int]]  # list of [hx, hy, hz]
+    
 @dataclass
 class RlResult:
     reward: float
@@ -37,8 +38,8 @@ class MyEnv(gym.Env):
         walkCount : int = 0
         hurdleCount: int = 0
 
-        walkCount = unity_comms.GetWalkableCount()
-        hurdleCount = unity_comms.GetHurdleCount()
+        # walkCount = unity_comms.GetWalkableCount()
+        # hurdleCount = unity_comms.GetHurdleCount()
 
 
         self.unity_commes = unity_comms
@@ -48,8 +49,10 @@ class MyEnv(gym.Env):
            # "dead": spaces.Discrete(2),
             "myPosition": spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
             "targetPos": spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
-            "walkablePos": spaces.Box(low=-np.inf, high=np.inf, shape=(walkCount, 3), dtype=np.float32),
-            "hurdlesPositions": spaces.Box(low=-np.inf, high=np.inf, shape=(hurdleCount, 3), dtype=np.float32)
+            "canMove": spaces.Box(low=0, high=1, shape=(4,), dtype=np.float32)  # NEW
+            # "walkablePos": spaces.Box(low=-np.inf, high=np.inf, shape=(walkCount, 3), dtype=np.float32),
+            # "hurdlesPositions": spaces.Box(low=-np.inf, high=np.inf, shape=(hurdleCount, 3), dtype=np.float32)
+            
         })
 
     def step(self, action: NDArray[np.uint8]) -> Tuple[dict[str, NDArray[np.float32] | int], float, bool, bool, dict[str, Any]]:
@@ -60,12 +63,14 @@ class MyEnv(gym.Env):
         info = {"finished": rlResult.finished}  # or any other info you want
 
         obs_dict = {
-            #"dead": int(rlResult.obs.dead),
             "myPosition": np.array(rlResult.obs.myPosition, dtype=np.float32),
             "targetPos": np.array(rlResult.obs.targetPos, dtype=np.float32),
-            "walkablePos": np.array(rlResult.obs.walkablePos, dtype=np.float32),
-            "hurdlesPositions": np.array(rlResult.obs.hurdlesPositions, dtype=np.float32)
+            "canMove": np.array(rlResult.obs.canMove, dtype=np.float32),  # NEW
+            # "walkablePos": np.array(rlResult.obs.walkablePos, dtype=np.float32),
+            # "hurdlesPositions": np.array(rlResult.obs.hurdlesPositions, dtype=np.float32),
+            
         }
+
         save_obs_to_file(obs_dict, rlResult.reward)
         return obs_dict, rlResult.reward, rlResult.finished, rlResult.truncate, info
 
@@ -74,12 +79,14 @@ class MyEnv(gym.Env):
         obs_vec3: Observations = self.unity_commes.Reset(ResultClass = Observations)
 
         obs_dict = {
-            #"dead": int(rlResult.obs.dead),
             "myPosition": np.array(obs_vec3.myPosition, dtype=np.float32),
             "targetPos": np.array(obs_vec3.targetPos, dtype=np.float32),
-            "walkablePos": np.array(obs_vec3.walkablePos, dtype=np.float32),
-            "hurdlesPositions": np.array(obs_vec3.hurdlesPositions, dtype=np.float32)
+            "canMove": np.array(obs_vec3.canMove, dtype=np.float32),  # NEW
+            # "walkablePos": np.array(rlResult.obs.walkablePos, dtype=np.float32),
+            # "hurdlesPositions": np.array(rlResult.obs.hurdlesPositions, dtype=np.float32),
+            
         }
+
 
         return obs_dict, {}
 

@@ -12,8 +12,8 @@ def run(args: argparse.Namespace) -> None:
     model_name = args.model
     my_env = Monitor(MyEnv(unity_comms=unity_comms))
 
-    ppo = PPO.load("PPO_EasyEnv", env=my_env)
-    ppo.learn(total_timesteps=100000)
+    ppo = PPO.load(model_name, env=my_env)
+    ppo.learn(total_timesteps=50000)
 
     ppo.save(model_name)
 

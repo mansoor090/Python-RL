@@ -1,11 +1,22 @@
+import sys, os
+import argparse
+
+try:
+    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+except NameError:
+    parent_dir = os.path.abspath("..")  # fallback if __file__ is undefined
+
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+
 import subprocess
 import time
-import socket
 from stable_baselines3.common.vec_env import SubprocVecEnv
 from my_env import MyEnv
 from peaceful_pie.unity_comms import UnityComms
 from stable_baselines3 import PPO
-
+from stable_baselines3.common.monitor import Monitor
 
 def launch_unity_instance(build_path, port):
     """Launch a single Unity instance."""
@@ -16,15 +27,17 @@ def launch_unity_instance(build_path, port):
     return process
 
 
-def make_env(port):
+def make_env(port, args: argparse.Namespace):
     """Factory function for each environment."""
     def _init():
         unity_comms = UnityComms(port=port)
+        model_name = args.model
         env = MyEnv(unity_comms=unity_comms)
+        env = Monitor(env, filename=f"./logs/{model_name}")
         return env
     return _init
 
-def main():
+def main(args: argparse.Namespace):
     build_path = "C:\\Users\\manso\\Autonomous Car\\New2\\Autonomous Car.exe"
     ports = [17000, 17010, 17020]
     unity_processes = []
@@ -39,28 +52,31 @@ def main():
 
     try:
         print("🚀 Setting up environments...")
-        env_fns = [make_env(port) for port in ports]
+        env_fns = [make_env(port, args) for port in ports]
         env = SubprocVecEnv(env_fns)
-
+        model_name = args.model
         print("🚀 Training PPO across multiple instances with MultiInputPolicy...")
-        model = PPO(
-            "MultiInputPolicy",
-            env=env,
-            verbose=1,
-            tensorboard_log='./tensorboard/',
-            learning_rate=3e-4,
-            n_steps=4096,
-            batch_size=512,
-            gamma=0.99,
-            gae_lambda=0.95,
-            clip_range=0.2,
-            ent_coef=0.01,
-            vf_coef=0.5,
-            max_grad_norm=0.5,
-        )
-        model.learn(total_timesteps=200000)
+        model = PPO.load(model_name, env=env)
 
-        model.save("PPO_MultiInstance_Model")
+        ## Use this, if you want to train from 0 again.
+        # model = PPO(
+        #     "MultiInputPolicy",
+        #     env=env,
+        #     verbose=1,
+        #     tensorboard_log='./tensorboard/',
+        #     learning_rate=3e-4,
+        #     n_steps=2048,
+        #     batch_size=512,
+        #     gamma=0.99,
+        #     gae_lambda=0.95,
+        #     clip_range=0.2,
+        #     ent_coef=0.01,
+        #     vf_coef=0.5,
+        #     max_grad_norm=0.5,
+        # )
+        model.learn(total_timesteps=100000)
+
+        model.save(model_name)
 
     finally:
         print("🛑 Closing Unity instances...")
@@ -69,4 +85,7 @@ def main():
             proc.wait()
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model', type=str, default='PPO_Test_Model_1')
+    args = parser.parse_args()
+    main(args)

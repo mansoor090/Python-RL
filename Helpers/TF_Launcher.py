@@ -4,7 +4,7 @@ import time
 import os
 
 # === CONFIG ===
-LOGDIR = "tune_logs"  # Folder where your tensorboard logs are stored
+LOGDIR = "Tensorboard"  # Folder where your tensorboard logs are stored
 PORT = 6006           # Change if 6006 is busy
 
 def launch_tensorboard():

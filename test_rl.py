@@ -8,6 +8,9 @@ from stable_baselines3.ppo.ppo import PPO
 
 
 def run(args: argparse.Namespace) -> None:
+
+
+
     print(f"🚀 Initializing Settings")
     print(f"🚀 Model Selection: {args.model}")
 

@@ -38,7 +38,7 @@ def make_env(port, args: argparse.Namespace):
     return _init
 
 def main(args: argparse.Namespace):
-    build_path = "C:\\Users\\manso\\Autonomous Car\\New2\\Autonomous Car.exe"
+    build_path = args.buildPath
     ports = [17000, 17010, 17020]
     unity_processes = []
 
@@ -74,7 +74,9 @@ def main(args: argparse.Namespace):
         #     vf_coef=0.5,
         #     max_grad_norm=0.5,
         # )
-        model.learn(total_timesteps=100000)
+
+        episodes = args.episodes
+        model.learn(total_timesteps=episodes)
 
         model.save(model_name)
 
@@ -87,5 +89,7 @@ def main(args: argparse.Namespace):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='PPO_Test_Model_1')
+    parser.add_argument('--episodes', type=int, default=50000)
+    parser.add_argument('--buildPath', type=str, default='PPO_Test_Model_1')
     args = parser.parse_args()
     main(args)

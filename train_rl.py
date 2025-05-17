@@ -17,7 +17,7 @@ def run(args: argparse.Namespace) -> None:
         env=my_env,
         verbose=1,
         tensorboard_log='./tensorboard/',
-        learning_rate=3e-4,
+        learning_rate=3e-4, ##0.0003
         n_steps=2048,
         batch_size=512,
         gamma=0.99,
@@ -27,13 +27,10 @@ def run(args: argparse.Namespace) -> None:
         vf_coef=0.5,
         max_grad_norm=0.5,
     )
-
-    ppo.learn(total_timesteps=100000)
-
-
+    episodes = args.episodes
+    print("Episodes:" + str(episodes))
+    ppo.learn(total_timesteps=episodes)
     ppo.save(model_name)
-
-
     my_env.close()
 
 
@@ -42,6 +39,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=9000)
     parser.add_argument('--model', type=str, default='PPO_Test_Model_1')
+    parser.add_argument('--episodes', type=int, default=100000)
     args = parser.parse_args()
 
 

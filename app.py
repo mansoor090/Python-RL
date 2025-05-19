@@ -45,7 +45,21 @@ async def main(page: ft.Page):
     model_input = ft.TextField(label="Model Name", value="PPO_Test_Model_1")
     port_input = ft.TextField(label="Port", value="9000")
     steps_input = ft.TextField(label="Episodes/Timesteps", value="100000")
-    unity_path_input = ft.TextField(label="Unity Game Path (.exe)", value="C:/Users/manso/Autonomous Car/GameFiles/Autonomous Dog Agent.exe", expand=True)
+    unity_path_input = ft.TextField(label="Unity Game Path (.exe)", value="./GameFiles/Autonomous Dog Agent.exe", expand=True)
+    file_picker = ft.FilePicker()
+    page.overlay.append(file_picker)
+    
+    browse_button = ft.ElevatedButton(
+        "📁 Browse",
+        on_click=lambda e: file_picker.pick_files(allow_multiple=False),
+    )
+    
+    def on_file_selected(e: ft.FilePickerResultEvent):
+        if e.files:
+            unity_path_input.value = e.files[0].path
+            page.update()
+            
+    file_picker.on_result = on_file_selected
 
     # Scan model files (zip only)
     def get_model_files():
@@ -248,7 +262,7 @@ async def main(page: ft.Page):
         port_input,
         steps_input,
         ft.Row([run_button, stop_button, clear_logs_btn]),
-        unity_path_input,
+        ft.Row([unity_path_input, browse_button]),
         ft.Row([launch_game_btn, close_game_btn]),
         output_display_info
 

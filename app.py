@@ -74,7 +74,7 @@ async def main(page: ft.Page):
 
     model_files_dropdown = ft.Dropdown(
         label="Select Existing Model (.zip)",
-        width = 400,
+        width=200,
         options=[ft.dropdown.Option(f) for f in get_model_files()],
         on_change=lambda e: setattr(model_input, 'value', e.control.value.replace(".zip", ""))
     )

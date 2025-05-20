@@ -3,7 +3,9 @@ import argparse
 from my_env import MyEnv
 from stable_baselines3.ppo.ppo import PPO
 from stable_baselines3.common.monitor import Monitor
+import os
 
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 def run(args: argparse.Namespace) -> None:
 

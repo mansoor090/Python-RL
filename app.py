@@ -71,11 +71,17 @@ async def main(page: ft.Page):
             if f.endswith(".zip")
         ]
 
+
     model_files_dropdown = ft.Dropdown(
         label="Select Existing Model (.zip)",
         width = 400,
         options=[ft.dropdown.Option(f) for f in get_model_files()],
         on_change=lambda e: setattr(model_input, 'value', e.control.value.replace(".zip", ""))
+    )
+    refresh_button = ft.TextButton(
+        text="🔁 Refresh",
+        tooltip="Refresh Model List",
+        on_click=lambda e: model_files_dropdown
     )
 
     output_display_info = ft.TextField(
@@ -257,7 +263,7 @@ async def main(page: ft.Page):
     left_column = ft.Column([
         ft.Text("🧠 RL Control Center", style="headlineMedium"),
         script_dropdown,
-        model_files_dropdown,
+        ft.Row([model_files_dropdown, refresh_button]),
         model_input,
         port_input,
         steps_input,

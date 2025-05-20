@@ -90,6 +90,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='PPO_Test_Model_1')
     parser.add_argument('--episodes', type=int, default=50000)
-    parser.add_argument('--buildPath', type=str, default='PPO_Test_Model_1')
+    parser.add_argument('--buildPath', type=str, default='./GameFiles/Autonomous Dog Agent.exe')
     args = parser.parse_args()
     main(args)

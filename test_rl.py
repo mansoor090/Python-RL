@@ -18,12 +18,12 @@ def run(args: argparse.Namespace) -> None:
 
     ## variables
     maxEpisodes = args.episodes
-    modelName = args.model
+    model_name = "models\\" + args.model
 
     my_env = MyEnv(unity_comms=unity_comms)
     my_env = Monitor(my_env)
     print(f"🚀 Model Trying to load")
-    ppo = PPO.load(modelName)
+    ppo = PPO.load(model_name)
     print(f"🚀 Model Loaded Successfully")
     print(f"🚀 Training in Progress")
 

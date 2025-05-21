@@ -10,7 +10,7 @@ os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 def run(args: argparse.Namespace) -> None:
 
     unity_comms = UnityComms(port=args.port)
-    model_name = args.model
+    model_name = "models\\" + args.model
     my_env = MyEnv(unity_comms=unity_comms)
     my_env = Monitor(my_env, filename=f"./logs/{model_name}")
 

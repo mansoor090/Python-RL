@@ -1,1 +1,1 @@
-{"observation": {"myPosition": [8.0, 0.0, 1.0], "targetPos": [8.0, 0.0, 1.0], "hurdleBools": [0.0, 1.0, 0.0, 0.0], "waterBools": [0.0, 0.0, 0.0, 0.0]}, "reward": 1.0}
+{"observation": {"myPosition": [8.0, 0.0, 8.0], "targetPos": [8.0, 0.0, 8.0], "hurdleBools": [0.0, 0.0, 0.0, 0.0], "waterBools": [0.0, 1.0, 0.0, 1.0]}, "reward": 1.0}

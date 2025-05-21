@@ -8,7 +8,7 @@ from stable_baselines3 import PPO
 
 def run(args: argparse.Namespace) -> None:
     unity_comms = UnityComms(port=args.port)
-    model_name = args.model
+    model_name = "models\\" + args.model
     episodes = args.episodes
     my_env = Monitor(MyEnv(unity_comms=unity_comms))
 

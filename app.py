@@ -70,7 +70,11 @@ async def main(page: ft.Page):
             f for f in os.listdir(model_dir)
             if f.endswith(".zip")
         ]
+    page.update()
 
+    def refresh_model_dropdown(e):
+        model_files_dropdown.options = [ft.dropdown.Option(f) for f in get_model_files()]
+        page.update()
 
     model_files_dropdown = ft.Dropdown(
         label="Select Existing Model (.zip)",
@@ -81,7 +85,7 @@ async def main(page: ft.Page):
     refresh_button = ft.TextButton(
         text="🔁 Refresh",
         tooltip="Refresh Model List",
-        on_click=lambda e: model_files_dropdown
+        on_click=refresh_model_dropdown  # ✅ call the refresh function
     )
 
     output_display_info = ft.TextField(
@@ -162,7 +166,7 @@ async def main(page: ft.Page):
     def run_script(e):
         global current_process
 
-        if current_process is not None:
+        if current_process is not None and current_process.poll() is None:
             output_display_logs.value += "❌ Another script is in process already"
             page.update()
             return
@@ -173,7 +177,7 @@ async def main(page: ft.Page):
         cmd = [
             python_exe,
             script_dropdown.value,
-            "--model", "models\\" + model_input.value,
+            "--model", model_input.value,
         ]
         if script_dropdown.value == "train_rl.py" or script_dropdown.value == "test_rl.py" or script_dropdown.value == "retrain.py" :
             cmd += ["--episodes", steps_input.value,
@@ -192,12 +196,14 @@ async def main(page: ft.Page):
             )
 
             def read_output():
+                global current_process
                 for line in current_process.stdout:
                     output_display_logs.value += line
                     output_display_logs.cursor_position = len(output_display_logs.value)
                     page.update()
                 current_process.wait()
                 output_display_logs.value += f"\n✅ Script finished with code {current_process.returncode}\n"
+                current_process = None  # ✅ allow re-running after finish
                 page.update()
 
             threading.Thread(target=read_output, daemon=True).start()
@@ -261,7 +267,7 @@ async def main(page: ft.Page):
 
     # LEFT: All controls & logs
     left_column = ft.Column([
-        ft.Text("🧠 RL Control Center", style="headlineMedium"),
+        ft.Text("🧠 RL Control Center", theme_style="headlineMedium"),
         script_dropdown,
         ft.Row([model_files_dropdown, refresh_button]),
         model_input,
@@ -276,13 +282,13 @@ async def main(page: ft.Page):
 
     # RIGHT: Observations only
     right_column = ft.Column([
-        ft.Text("👀 Live Observation", style="headlineMedium"),
+        ft.Text("👀 Live Observation", theme_style="headlineMedium"),
         obs_labels["reward"],
         obs_labels["myPosition"],
         obs_labels["targetPos"],
         obs_labels["hurdleBools"],
         obs_labels["waterBools"],
-        ft.Text("📋 Logs", style="titleMedium"),
+        ft.Text("📋 Logs", theme_style="titleMedium"),
         output_display_logs
     ], expand=True)
 

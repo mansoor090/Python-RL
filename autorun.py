@@ -54,7 +54,7 @@ def main(args: argparse.Namespace):
         print("🚀 Setting up environments...")
         env_fns = [make_env(port, args) for port in ports]
         env = SubprocVecEnv(env_fns)
-        model_name = args.model
+        model_name = "models\\" + args.model
         print("🚀 Training PPO across multiple instances with MultiInputPolicy...")
         model = PPO.load(model_name, env=env)
 

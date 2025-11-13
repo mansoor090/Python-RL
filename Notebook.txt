@@ -1,0 +1,47 @@
+COMMAND LINE PROMPT - DEMO 
+## ( I will train for 2000 episodes in demo video, 
+##   else video will be bigger in size)
+
+## LOCATE YOUR GAME.EXE
+## Step1: Train your model 
+
+python train_rl.py --model <name> --episodes <amount>  
+
+## Once trained, your model will be saved in ./models. 
+
+## Step 2: Further train your model 
+## launch game again. 
+	python retrain.py --model <name> --episodes <amount>  
+	
+## Or Step 2: Further train your model using multiple instances 
+python autorun.py --model <name> --episodes <amount>
+
+## Step3: Test your model using command
+## -- launch game
+python test_rl.py --model <name> --episodes <amount>  
+
+
+
+App - DEMO ( I will train for 2000 episodes in demo video, else video will be bigger in size)
+
+Command: flet run app.py
+
+LOCATE YOUR GAME.EXE ( use browse button or copy-paste path )
+Step1: Train your model  
+- launch your game
+- select script
+- select episodes 
+- assign new name for model
+- click run
+Once trained, your model will be saved in ./models. 
+
+Step 2: Further train your model 
+-- Select your saved model and click refresh
+
+OR Step 2: Further train your model using multiple instances (no need to launch game manually)
+-- Select your saved model
+
+Step3: Test your model using command
+-- Select your model // let's test GOOOD model now. 
+// we can also change environment at runtime. lets run it again for other levels. hard levels. 
+

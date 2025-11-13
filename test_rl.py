@@ -1,37 +1,31 @@
-from dataclasses import dataclass
+import time
 from peaceful_pie.unity_comms import UnityComms
 import argparse
-
-from sympy import false
-
 from my_env import MyEnv
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.ppo.ppo import PPO
 
-@dataclass
-class MyVector3:
-    x: float
-    y: float
-    z: float
 
-@dataclass
-class RlResult:
-    reward: float
-    finished: bool
-    truncate: bool
-    obs: MyVector3
 
 def run(args: argparse.Namespace) -> None:
+
+
+
+    print(f"🚀 Initializing Settings")
+    print(f"🚀 Model Selection: {args.model}")
+
     unity_comms = UnityComms(port=args.port)
 
     ## variables
     maxEpisodes = args.episodes
-    modelName = args.model
+    model_name = "models\\" + args.model
 
     my_env = MyEnv(unity_comms=unity_comms)
     my_env = Monitor(my_env)
-
-    ppo = PPO.load(modelName)
+    print(f"🚀 Model Trying to load")
+    ppo = PPO.load(model_name)
+    print(f"🚀 Model Loaded Successfully")
+    print(f"🚀 Training in Progress")
 
     for episode in range(maxEpisodes):
         obs, info = my_env.reset()
@@ -42,6 +36,7 @@ def run(args: argparse.Namespace) -> None:
             action, info = ppo.predict(obs)
             obs, reward, done, truncate, info = my_env.step(action)
             total_reward += reward
+            time.sleep(1)
 
         print(f"Episode: {episode + 1}, finished with total reward: {total_reward}")
 
@@ -53,6 +48,7 @@ if __name__ == '__main__':
     parser.add_argument('--port', type=int, default=9000)
     parser.add_argument('--model', type=str, required=True)
     parser.add_argument('--episodes', type=int, default=100000)
+
     args = parser.parse_args()
     run(args)
 

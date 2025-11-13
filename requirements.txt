@@ -1,0 +1,10 @@
+flet
+gymnasium
+matplotlib
+numpy
+pandas
+peaceful-pie
+stable_baselines3
+tensorboard
+tensorflow
+PyQt5

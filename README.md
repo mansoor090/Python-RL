@@ -517,8 +517,7 @@ This project is free to use and fork. No specific license restrictions.
 ## 👤 Author
 
 **Mansoor**
-
-Made with ❤️ for ICT 619 - Artificial Intelligence
+Made with ❤️
 
 ## 🙏 Acknowledgments
 

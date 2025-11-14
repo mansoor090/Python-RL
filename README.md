@@ -94,7 +94,6 @@ The communication between Unity (C#) and Python is handled via **JSON-RPC** usin
 
 ```bash
 git clone <repository-url>
-cd PythonXUnityProject
 ```
 
 ### Step 2: Install Python Dependencies
